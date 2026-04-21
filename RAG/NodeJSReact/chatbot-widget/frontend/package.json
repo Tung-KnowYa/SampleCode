@@ -1,0 +1,44 @@
+{
+  "name": "chatbot-widget",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "webpack --mode development --watch",
+    "build": "webpack --mode production"
+  },
+  "babel": {
+    "presets": [
+      "@babel/preset-env",
+      [
+        "@babel/preset-react",
+        {
+          "runtime": "automatic"
+        }
+      ]
+    ]
+  },
+  "dependencies": {
+    "css-loader": "^7.1.4",
+    "lucide-react": "^1.8.0",
+    "postcss-loader": "^8.2.1",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "react-markdown": "^10.1.0",
+    "recharts": "^3.8.1",
+    "remark-gfm": "^4.0.1",
+    "style-loader": "^4.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.29.0",
+    "@babel/preset-env": "^7.29.2",
+    "@babel/preset-react": "^7.28.5",
+    "@tailwindcss/postcss": "^4.2.2",
+    "@tailwindcss/typography": "^0.5.19",
+    "autoprefixer": "^10.5.0",
+    "babel-loader": "^10.1.1",
+    "postcss": "^8.5.10",
+    "raw-loader": "^4.0.2",
+    "tailwindcss": "^4.2.2",
+    "webpack": "^5.106.2",
+    "webpack-cli": "^7.0.2"
+  }
+}

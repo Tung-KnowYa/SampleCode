@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+/* Scoped typography for markdown */
+.prose table { @apply w-full text-left border-collapse my-4; }
+.prose th, .prose td { @apply border border-current p-2 opacity-80; }
+.prose h1, .prose h2, .prose h3 { @apply font-bold mt-4 mb-2; }
+.prose ul { @apply list-disc list-inside my-2; }
