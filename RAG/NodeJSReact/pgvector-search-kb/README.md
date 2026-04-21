@@ -13,22 +13,16 @@ This Node.js application is a Proof-of-Concept (PoC) demonstrating how to ingest
 - `pgvector` PostgreSQL extension installed on your database server.
 
 ### Installing pgvector via Docker (Fastest for local dev)
-If you don't have postgres locally, you can spin up a pgvector-enabled instance via Docker.
+If you don't have postgres locally, you can spin up a pgvector-enabled instance via Docker. For example: `docker run --name pgvector-poc -e POSTGRES_PASSWORD=yourpassword -p 5432:5432 -d ankane/pgvector`
 
 ### Setup
-Clone the repository and install dependencies:
-   ```bash
-   npm install
+Clone the repository and install dependencies: `npm install`
 
 ### Generate Dummy Data
-Run the included tool to generate a data.json file.
-   ```bash
-   node tools/generate-data.js
+Run the included tool to generate a data.json file: `node tools/generate-data.js`
 
 ### Run
-Run the main application flow:
-   ```bash
-   node app.js
+Run the main application flow: `node app.js`
 
 ### Environment Variables
 For CI/CD pipelines (e.g., GitHub Actions, Azure DevOps), ensure the following secrets are injected into the environment prior to running integration tests or deployment scripts:
@@ -37,4 +31,4 @@ For CI/CD pipelines (e.g., GitHub Actions, Azure DevOps), ensure the following s
 3. DB_PASSWORD
 
 ### Security Notes
-Do not commit .env files or hardcode DB_USER and DB_PASSWORD.
+Do not commit `.env` files or hardcode DB_USER and DB_PASSWORD.
