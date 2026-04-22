@@ -18,11 +18,14 @@ If you don't have postgres locally, you can spin up a pgvector-enabled instance 
 ### Setup
 Clone the repository and install dependencies: `npm install`
 
-### Generate Dummy Data
-Run the included tool to generate a data.json file: `node tools/generate-data.js`
-
-### Run
+### Run the Knowledge Base App
 Run the main application flow: `node app.js`
+
+### Run the Data App that works with data items.
+Run the main application flow: `node item-app.js`
+
+### Tool: Generate Dummy Data
+Run the included tool to generate a data.json file: `node tools/generate-item-data.js`
 
 ### Environment Variables
 For CI/CD pipelines (e.g., GitHub Actions, Azure DevOps), ensure the following secrets are injected into the environment prior to running integration tests or deployment scripts:

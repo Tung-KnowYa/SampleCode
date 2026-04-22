@@ -1,6 +1,27 @@
 import { pool } from '../services/db.js';
+import { config } from '../config/env.js';
 import { extractTextFromFile, chunkText } from './document-processor.js';
 import path from 'path';
+
+export async function createIndex4KnowledgeBase() {
+    const dim = config.vector.dimensions;
+
+    const ddl = `
+        CREATE TABLE IF NOT EXISTS knowledge_base (
+            chunk_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            document_name VARCHAR(255),
+            chunk_index INTEGER,
+            content TEXT,
+            semantic_vector vector(${dim})
+        );
+
+        -- HNSW Index for fast semantic search
+        CREATE INDEX IF NOT EXISTS kb_vector_idx ON knowledge_base USING hnsw (semantic_vector vector_cosine_ops);
+    `;
+
+    await pool.query(ddl);
+    console.log("DB Schema and DB Indexes (Semantic Configuration) for Knowledge Base created.");
+}
 
 /**
  * @param {string} filePath
