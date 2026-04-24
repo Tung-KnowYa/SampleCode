@@ -21,11 +21,13 @@ def load_index():
     """Load the existing ChromaDB index."""
     Settings.embed_model = OpenAIEmbedding(
         model=config.EMBED_MODEL,
+        api_base=config.OPENAI_API_BASEURL,
         api_key=config.OPENAI_API_KEY
     )
     Settings.llm = OpenAI(
         model=config.LLM_MODEL,
         temperature=config.LLM_TEMPERATURE,
+        api_base=config.OPENAI_API_BASEURL,
         api_key=config.OPENAI_API_KEY,
         system_prompt=config.SYSTEM_PROMPT
     )
