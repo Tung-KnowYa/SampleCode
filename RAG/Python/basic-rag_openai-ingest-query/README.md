@@ -55,7 +55,7 @@ streamlit run app.py
 Opens a chat interface in your browser at http://localhost:8501
 
 ## Configuration
-Edit `config.py` to adjust:
+Edit `config.py` or `.env` to adjust:
 - `EMBED_MODEL` — embedding model (default: text-embedding-3-small)
 - `LLM_MODEL` — language model (default: gpt-4o-mini)
 - `CHUNK_SIZE` — tokens per chunk (default: 400)
