@@ -3,14 +3,15 @@ from dotenv import load_dotenv
 
 load_dotenv()  # loads variables from .env into the environment
 
+OPENAI_API_BASEURL = os.environ.get('OPENAI_API_BASEURL', 'https://api.openai.com/v1')
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
-
+ 
 # Embedding model settings
-EMBED_MODEL = 'text-embedding-3-small'
-
+EMBED_MODEL = os.environ.get('EMBED_MODEL', 'text-embedding-3-small')
+ 
 # LLM settings
-LLM_MODEL = 'gpt-4o-mini'
-LLM_TEMPERATURE = 0.1  # low temperature for factual Q&A
+LLM_MODEL = os.environ.get('LLM_MODEL', 'gpt-4o-mini')
+LLM_TEMPERATURE = os.environ.get('LLM_TEMPERATURE', 0.1)  # low temperature for factual Q&A
 
 # Chunking settings
 CHUNK_SIZE = 400       # tokens per chunk
