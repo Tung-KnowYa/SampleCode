@@ -15,6 +15,7 @@ def run_ingestion():
     # Step 1: Configure the embedding model
     Settings.embed_model = OpenAIEmbedding(
         model=config.EMBED_MODEL,
+        api_base=config.OPENAI_API_BASEURL,
         api_key=config.OPENAI_API_KEY
     )
 
