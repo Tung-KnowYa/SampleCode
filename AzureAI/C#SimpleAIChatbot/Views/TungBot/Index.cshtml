@@ -1,0 +1,175 @@
+﻿@model SimpleAzureOpenAIChatbot.Models.ChatViewModel
+
+@* --- CHAT SECTION --- *@
+<h2 style="text-align: center; color: #007bff;">Chat with TungBot</h2>
+<div id="chat-container" style="width: 600px; margin: 50px auto; padding: 20px; border: 1px solid #ddd; background-color: #e0f7fa; border-radius: 10px;">
+    <div id="chat-window" style="height: 400px; overflow-y: scroll; background-color: #ffffff; padding: 10px; border: 1px solid #007bff; border-radius: 5px; margin-bottom: 10px;">
+        @foreach (var message in Model.ChatHistory)
+        {
+            @if (message.StartsWith("You:"))
+            {
+                <p style="background-color: #cce5ff; color: #005b9f; padding: 10px; border-radius: 10px; width: fit-content; max-width: 70%; margin-left: auto; text-align: right;">
+                    <strong>You:</strong> @message.Substring("You:".Length)
+                </p>
+            }
+            else if (message.StartsWith("TungBot:"))
+            {
+                var botText = message.Substring("TungBot:".Length).Trim();
+                var speakId = $"speak-{Guid.NewGuid():N}";
+                <div style="display: flex; align-items: flex-start; gap: 6px; margin-bottom: 6px;">
+                    <p style="background-color: #d1ecf1; color: #0c5460; padding: 10px; border-radius: 10px; width: fit-content; max-width: 70%; text-align: left; margin: 0;">
+                        <strong>TungBot:</strong> @botText
+                    </p>
+                    <button id="@speakId"
+                            onclick="speakText(this, '@Html.Raw(botText.Replace("'", "\\'").Replace("\n", " "))')"
+                            title="Speak"
+                            style="flex-shrink: 0; margin-top: 4px; padding: 6px 10px; background: #0c5460; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;">
+                        🔊
+                    </button>
+                </div>
+            }
+        }
+        <div id="thinking-indicator" style="display:none;">
+            <p style="background-color: #d1ecf1; color: #0c5460; padding: 10px; border-radius: 10px; width: fit-content; font-style: italic;">
+                <strong>TungBot:</strong> Thinking... 🤔
+            </p>
+        </div>
+    </div>
+
+    <form asp-action="Index" method="post" id="chat-form" style="display: flex;" onsubmit="return showLoading('chat-window', 'UserInput', 'thinking-indicator')">
+        <input type="text" id="UserInput" name="UserInput" value="@Model.UserInput"
+               placeholder="Enter your message"
+               style="width: 85%; padding: 10px; margin-right: 10px; border: 1px solid #005b9f; border-radius: 5px;" />
+        <button type="submit" style="padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">Send</button>
+    </form>
+</div>
+
+@* --- SCRIPTS --- *@
+<script>
+    var _ttsAudio = null; // Track audio currently playing to allow stopping
+
+    async function speakText(btn, text) {
+        // If already playing, stop it
+        if (_ttsAudio && !_ttsAudio.paused) {
+            _ttsAudio.pause();
+            _ttsAudio.currentTime = 0;
+            btn.textContent = '🔊';
+            return;
+        }
+
+        btn.textContent = '⏳';
+        btn.disabled = true;
+
+        try {
+            const resp = await fetch('/TungBot/SpeakText', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: text })
+            });
+
+            if (!resp.ok) throw new Error('TTS request failed: ' + resp.status);
+
+            const audioBlob = await resp.blob();
+            const audioUrl = URL.createObjectURL(audioBlob);
+
+            _ttsAudio = new Audio(audioUrl);
+            _ttsAudio.play();
+
+            btn.textContent = '⏹';
+            btn.disabled = false;
+
+            _ttsAudio.onended = function () {
+                btn.textContent = '🔊';
+                URL.revokeObjectURL(audioUrl); // Free memory
+            };
+
+        } catch (err) {
+            console.error('TTS error:', err);
+            btn.textContent = '❌';
+            btn.disabled = false;
+            setTimeout(() => btn.textContent = '🔊', 2000);
+        }
+    }
+
+    // Handles showing the specific loading state for both forms
+    function showLoading(windowId, inputId, indicatorId) {
+        var input = document.getElementById(inputId);
+        if (input.value.trim() === "") return false;
+
+        var chatWindow = document.getElementById(windowId);
+        var indicator = document.getElementById(indicatorId);
+        
+        // Show the indicator
+        indicator.style.display = 'block';
+        
+        // Scroll to the bottom to reveal the indicator
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+        
+        return true;
+    }
+</script>
+
+@* --- IMAGE GENERATION SECTION --- *@
+<h2 style="text-align: center; color: #007bff;">Create image with TungBot</h2>
+<div id="image-container-main" style="width: 600px; margin: 50px auto; padding: 20px; border: 1px solid #ddd; background-color: #e0f7fa; border-radius: 10px;">
+    <div id="image-window" style="height: 400px; overflow-y: scroll; background-color: #ffffff; padding: 10px; border: 1px solid #007bff; border-radius: 5px; margin-bottom: 10px;">
+        @foreach (var message in Model.ImgReqHistory)
+        {
+            @if (message.StartsWith("You:"))
+            {
+                <p style="background-color: #cce5ff; color: #005b9f; padding: 10px; border-radius: 10px; width: fit-content; max-width: 70%; margin-left: auto; text-align: right;">
+                    <strong>You:</strong> @message.Substring("You:".Length)
+                </p>
+            }
+            else if (message.StartsWith("TungBot:"))
+            {
+                var msgId = $"msg-{Guid.NewGuid():N}";
+                <p id="@msgId" style="background-color: #d1ecf1; color: #0c5460; padding: 10px; border-radius: 10px; width: fit-content; max-width: 70%; text-align: left;">
+                    <strong>TungBot:</strong> @Html.Raw(message.Substring("TungBot:".Length))
+                </p>
+
+                <script>
+                            setTimeout(function () {
+                                var bubble = document.getElementById('@msgId');
+                                if (!bubble) return;
+
+                                var imgs = bubble.querySelectorAll('img[src^="data:image"]');
+
+                                imgs.forEach(function (img, idx) {
+                                    if (img.dataset.dlInjected) return;
+                                    img.dataset.dlInjected = 'true';
+
+                                    var wrapper = document.createElement('div');
+                                    wrapper.style.cssText = 'display:inline-block; position:relative; margin:4px; vertical-align:top;';
+                                    img.parentNode.insertBefore(wrapper, img);
+                                    wrapper.appendChild(img);
+
+                                    var btn = document.createElement('a');
+                                    btn.href = img.src;
+                                    btn.download = 'tungbot-image-' + (idx + 1) + '.png';
+                                    btn.textContent = '⬇ Download';
+                                    btn.style.cssText =
+                                        'display:block; margin-top:6px; padding:5px 12px;' +
+                                        'background:#0c5460; color:#fff; border-radius:6px;' +
+                                        'font-size:12px; text-align:center; text-decoration:none; cursor:pointer;';
+
+                                    wrapper.appendChild(btn);
+                                });
+                            }, 100);
+                </script>
+            }
+        }
+        <div id="drawing-indicator" style="display:none; margin-top: 10px;">
+            <p style="background-color: #d1ecf1; color: #0c5460; padding: 10px; border-radius: 10px; width: fit-content; font-style: italic; border: 1px dashed #0c5460;">
+                <strong>TungBot:</strong> I am drawing your image... 🎨
+            </p>
+        </div>
+    </div>
+
+    <form asp-action="Index" method="post" id="img-form" style="display: flex;" onsubmit="return showLoading('image-window', 'UserImgReqInput', 'drawing-indicator')">
+        <input type="text" id="UserImgReqInput" name="UserImgReqInput" value="@Model.UserImgReqInput"
+               placeholder="Describe the image you want..."
+               style="width: 85%; padding: 10px; margin-right: 10px; border: 1px solid #005b9f; border-radius: 5px;" />
+        <button type="submit" style="padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">Draw</button>
+    </form>
+</div>
