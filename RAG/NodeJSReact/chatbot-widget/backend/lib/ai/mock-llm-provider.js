@@ -20,10 +20,6 @@ class MockLLMProvider extends LLMProvider {
     return vector.map((val) => val / magnitude);
   }
 
-  /**
-   * @param {{ role: string, content: string }[]} messages
-   * @returns {Promise<string>}
-   */
   async chatComplete(messages) {
     const lastUser = [...messages].reverse().find((m) => m.role === 'user');
     const preview = lastUser ? String(lastUser.content).slice(0, 120) : '';
@@ -32,6 +28,19 @@ class MockLLMProvider extends LLMProvider {
       preview ? `Your message (preview): _${preview}${preview.length >= 120 ? '…' : ''}_` : '',
       'Set `AI_PROVIDER=azure` or `litellm` and configure credentials for real answers.',
     ].filter(Boolean).join('\n\n');
+  }
+
+  /**
+   * @param {{ role: string, content: string }[]} messages
+   * @returns {Promise<AsyncIterable<string>>}
+   */
+  async *chatStream(messages) {
+    const reply = await this.chatComplete(messages);
+    const words = reply.split(' ');
+    for (const word of words) {
+      yield word + ' ';
+      await new Promise((r) => setTimeout(r, 50));
+    }
   }
 }
 

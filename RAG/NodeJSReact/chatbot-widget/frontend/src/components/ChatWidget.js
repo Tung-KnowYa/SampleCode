@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageSquare, X, Plus, Send, MoreVertical, LayoutTemplate, BarChart2, PieChart, FileText, Lightbulb } from 'lucide-react';
+import { MessageSquare, X, Plus, Send, MoreVertical, LayoutTemplate, BarChart2, PieChart, FileText, Lightbulb, Download, FileType, Presentation, FileSpreadsheet } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from 'recharts';
@@ -55,9 +55,13 @@ export default function ChatWidget({ theme = 'light' }) {
 
   const handleSend = async () => {
     if (!input.trim()) return;
-    
+
     const userMsg = { role: 'user', content: input, tool: selectedTool };
-    setMessages(prev => [...prev, userMsg]);
+    const assistantMsg = { role: 'assistant', content: '', tool: selectedTool };
+
+    setMessages(prev => [...prev, userMsg, assistantMsg]);
+    const assistantMsgIndex = messages.length + 1;
+
     setInput('');
     setShowTools(false);
     setIsThinking(true);
@@ -66,19 +70,103 @@ export default function ChatWidget({ theme = 'light' }) {
       const response = await fetch('http://localhost:3001/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMsg.content, tool: userMsg.tool })
+        body: JSON.stringify({
+          message: userMsg.content,
+          tool: userMsg.tool,
+          stream: true,
+          history: messages.map(m => ({ role: m.role, content: m.content }))
+        })
       });
-      
-      const data = await response.json();
-      
-      if (!response.ok) throw new Error(data.error);
 
-      setMessages(prev => [...prev, { role: 'assistant', content: data.reply }]);
-    } catch (error) {
-      setMessages(prev => [...prev, { role: 'assistant', content: `Oops! ${error.message}` }]);
-    } finally {
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error);
+      }
+
       setIsThinking(false);
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let fullContent = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const dataStr = line.slice(6);
+            if (dataStr === '[DONE]') break;
+            try {
+              const data = JSON.parse(dataStr);
+              if (data.chunk) {
+                fullContent += data.chunk;
+                setMessages(prev => {
+                  const newMsgs = [...prev];
+                  newMsgs[assistantMsgIndex] = { ...newMsgs[assistantMsgIndex], content: fullContent };
+                  return newMsgs;
+                });
+              }
+            } catch (e) {
+              console.error('Error parsing chunk', e);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      setIsThinking(false);
+      setMessages(prev => {
+        const newMsgs = [...prev];
+        newMsgs[assistantMsgIndex] = { ...newMsgs[assistantMsgIndex], content: `Oops! ${error.message}` };
+        return newMsgs;
+      });
+    } finally {
       setSelectedTool(null);
+    }
+  };
+
+  const handleExport = async (tool, content, userMessage) => {
+    try {
+      const response = await fetch('http://localhost:3001/api/export', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tool, content, userMessage })
+      });
+
+      if (!response.ok) throw new Error('Export failed');
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = '';
+      if (contentDisposition) {
+        const match = contentDisposition.match(/filename="(.+)"/);
+        if (match) filename = match[1];
+      }
+
+      if (!filename) {
+        const extensions = {
+          'Word document': 'docx',
+          'PDF document': 'pdf',
+          'Excel workbook': 'xlsx',
+          'PowerPoint': 'pptx'
+        };
+        const ext = extensions[tool] || 'docx';
+        const safeTitle = (userMessage || 'export').replace(/[^\w\s-]/g, '').trim().slice(0, 30) || 'export';
+        filename = `${safeTitle.replace(/\s+/g, '-')}.${ext}`;
+      }
+
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch (error) {
+      console.error('Export error:', error);
+      alert('Failed to export document');
     }
   };
 
@@ -90,7 +178,7 @@ export default function ChatWidget({ theme = 'light' }) {
     if (match) {
       const textBefore = content.replace(chartRegex, '');
       let chartData = [];
-      try { chartData = JSON.parse(match[1]); } catch (e) {}
+      try { chartData = JSON.parse(match[1]); } catch (e) { }
 
       return (
         <div>
@@ -119,7 +207,7 @@ export default function ChatWidget({ theme = 'light' }) {
 
   if (!isOpen) {
     return (
-      <button 
+      <button
         onClick={() => setIsOpen(true)}
         className="fixed bottom-6 right-6 p-4 rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700 transition-all z-50 border border-white/20 ring-4 ring-blue-600/10"
       >
@@ -130,12 +218,12 @@ export default function ChatWidget({ theme = 'light' }) {
 
   return (
     <div className={`fixed inset-4 md:inset-10 z-50 flex flex-col rounded-2xl overflow-hidden border ${themeClasses.container}`}>
-      
+
       {/* 1. HEADER: Solid Surface Color */}
       <div className={`p-5 flex justify-between items-center backdrop-blur-md z-10 ${themeClasses.header}`}>
         <div>
           <h2 className="text-lg font-bold flex items-center gap-2">
-            AI Assistant 
+            KnowYa AI Assistant
             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
           </h2>
           <p className="text-xs opacity-60 font-medium uppercase tracking-widest">Enterprise Knowledge Base</p>
@@ -149,21 +237,57 @@ export default function ChatWidget({ theme = 'light' }) {
       <div className={`flex-1 overflow-y-auto p-6 space-y-6 ${themeClasses.body}`}>
         {messages.map((m, idx) => (
           <div key={idx} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2`}>
-            <div className={`max-w-[85%] rounded-2xl p-4 shadow-sm border ${
-              m.role === 'user' 
-                ? (theme.includes('gold') ? themeClasses.bubbleUser : 'bg-blue-600 text-white border-blue-500')
-                : themeClasses.bubbleAssistant
-            }`}>
+            <div className={`max-w-[85%] rounded-2xl p-4 shadow-sm border ${m.role === 'user'
+              ? (theme.includes('gold') ? themeClasses.bubbleUser : 'bg-blue-600 text-white border-blue-500')
+              : themeClasses.bubbleAssistant
+              }`}>
               {m.role === 'user' && m.tool && (
                 <div className="text-[10px] font-bold uppercase tracking-tighter opacity-70 mb-2 bg-black/20 w-fit px-1.5 rounded">
                   {m.tool}
                 </div>
               )}
               {renderContent(m.content)}
+
+              {m.role === 'assistant' && m.content && !m.content.startsWith('Oops!') && (
+                <div className="mt-4 pt-4 border-t border-white/10 flex flex-wrap gap-2">
+                  {(!m.tool || !['Word document', 'PDF document', 'Excel workbook', 'PowerPoint'].includes(m.tool) || m.tool === 'Word document') && (
+                    <button
+                      onClick={() => handleExport('Word document', m.content, messages[idx - 1]?.content)}
+                      className="flex items-center gap-1.5 px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-[10px] font-bold uppercase tracking-wider transition-colors"
+                    >
+                      <Download size={12} /> Word
+                    </button>
+                  )}
+                  {(!m.tool || !['Word document', 'PDF document', 'Excel workbook', 'PowerPoint'].includes(m.tool) || m.tool === 'PDF document') && (
+                    <button
+                      onClick={() => handleExport('PDF document', m.content, messages[idx - 1]?.content)}
+                      className="flex items-center gap-1.5 px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-[10px] font-bold uppercase tracking-wider transition-colors"
+                    >
+                      <Download size={12} /> PDF
+                    </button>
+                  )}
+                  {(!m.tool || !['Word document', 'PDF document', 'Excel workbook', 'PowerPoint'].includes(m.tool) || m.tool === 'Excel workbook') && (
+                    <button
+                      onClick={() => handleExport('Excel workbook', m.content, messages[idx - 1]?.content)}
+                      className="flex items-center gap-1.5 px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-[10px] font-bold uppercase tracking-wider transition-colors"
+                    >
+                      <Download size={12} /> Excel
+                    </button>
+                  )}
+                  {(!m.tool || !['Word document', 'PDF document', 'Excel workbook', 'PowerPoint'].includes(m.tool) || m.tool === 'PowerPoint') && (
+                    <button
+                      onClick={() => handleExport('PowerPoint', m.content, messages[idx - 1]?.content)}
+                      className="flex items-center gap-1.5 px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-[10px] font-bold uppercase tracking-wider transition-colors"
+                    >
+                      <Download size={12} /> PPTX
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         ))}
-        
+
         {isThinking && (
           <div className="flex justify-start">
             <div className={`rounded-2xl p-4 animate-pulse border ${themeClasses.bubbleAssistant}`}>
@@ -184,14 +308,14 @@ export default function ChatWidget({ theme = 'light' }) {
         {selectedTool && (
           <div className="absolute -top-12 left-6 flex items-center gap-2 animate-in slide-in-from-bottom-2">
             <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-bold shadow-sm
-              ${theme.includes('gold') 
-                ? 'bg-[#d4af37]/20 border-[#d4af37]/50 text-[#d4af37]' 
+              ${theme.includes('gold')
+                ? 'bg-[#d4af37]/20 border-[#d4af37]/50 text-[#d4af37]'
                 : 'bg-blue-500/10 border-blue-500/30 text-blue-500'}`}
             >
               <span className="uppercase tracking-wider">Mode: {selectedTool}</span>
-              
+
               {/* Button X to remove the selected tool */}
-              <button 
+              <button
                 onClick={() => setSelectedTool(null)}
                 className="hover:bg-black/10 rounded-full p-0.5 transition-colors"
                 title="Remove tool"
@@ -219,10 +343,14 @@ export default function ChatWidget({ theme = 'light' }) {
               { name: 'Table Report', icon: LayoutTemplate },
               { name: 'Chart Report', icon: BarChart2 },
               /*{ name: 'Diagram', icon: PieChart },
-              { name: 'Infographics', icon: FileText },*/
-              { name: 'Insights Report', icon: Lightbulb }
+              { name: 'Infographics', icon: FileText },
+              { name: 'Insights Report', icon: Lightbulb },
+              { name: 'Word document', icon: FileText },
+              { name: 'PDF document', icon: FileType },
+              { name: 'PowerPoint', icon: Presentation },
+              { name: 'Excel workbook', icon: FileSpreadsheet },*/
             ].map(tool => (
-              <button 
+              <button
                 key={tool.name}
                 onClick={() => { setSelectedTool(tool.name); setShowTools(false); }}
                 className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-black/10 rounded-lg transition-colors">
@@ -231,28 +359,27 @@ export default function ChatWidget({ theme = 'light' }) {
             ))}
           </div>
         )}
-        
+
         <div className="flex items-end gap-3">
-          <button 
+          <button
             onClick={() => setShowTools(!showTools)}
-            className={`p-3 rounded-xl transition-all active:scale-95 border ${
-              selectedTool ? 'bg-blue-600 border-blue-500 text-white' : 'bg-white/5 border-white/10 opacity-70 hover:opacity-100'
-            }`}>
+            className={`p-3 rounded-xl transition-all active:scale-95 border ${selectedTool ? 'bg-blue-600 border-blue-500 text-white' : 'bg-white/5 border-white/10 opacity-70 hover:opacity-100'
+              }`}>
             <Plus size={22} />
           </button>
 
           <div className="flex-1 bg-black/20 rounded-xl border border-white/10 focus-within:border-blue-500/50 transition-all flex items-end">
-            <textarea 
+            <textarea
               value={input}
-              onChange={(e) => setInput(e.target.value)}              
-              onKeyDown={(e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
               className="w-full bg-transparent p-3.5 max-h-40 min-h-[52px] outline-none resize-none text-[15px]"
               placeholder={selectedTool ? `Ask a question (formatting as ${selectedTool})...` : "Ask anything..."}
               rows={1}
             />
           </div>
 
-          <button 
+          <button
             onClick={handleSend}
             disabled={!input.trim() || isThinking}
             className="p-3.5 rounded-xl bg-blue-600 text-white disabled:opacity-30 hover:bg-blue-700 shadow-lg shadow-blue-500/20 transition-all active:scale-95">

@@ -25,6 +25,7 @@ const litellmTemperature = parseFloat(process.env.LITELLM_TEMPERATURE || '1');
 module.exports = {
   PORT: process.env.PORT || 3001,
   DB: {
+    provider: process.env.DB_PROVIDER || 'postgres',
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
     user: process.env.DB_USER,

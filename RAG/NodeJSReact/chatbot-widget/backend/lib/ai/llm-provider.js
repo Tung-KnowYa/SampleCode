@@ -20,6 +20,15 @@ class LLMProvider {
   }
 
   /**
+   * @param {{ role: string, content: string }[]} messages
+   * @param {object} [options]
+   * @returns {Promise<AsyncIterable<string>>}
+   */
+  async chatStream(messages, options) {
+    throw new Error('chatStream is not implemented for this provider');
+  }
+
+  /**
    * @param {string} prompt
    * @param {object} [options]
    * @returns {Promise<string>}

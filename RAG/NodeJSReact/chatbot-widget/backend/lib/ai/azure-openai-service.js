@@ -68,13 +68,39 @@ class AzureOpenAIService extends LLMProvider {
       const response = await this._chatClient.chat.completions.create({
         model: this._chatModel,
         messages,
-        temperature: options.temperature ?? 0.3,
+        temperature: options.temperature ?? 1,
       });
       const content = response.choices[0]?.message?.content;
       return content ?? '';
     } catch (error) {
       console.error('AI Chat Error:', error);
       throw new Error('Failed to connect to AI Service.');
+    }
+  }
+
+  /**
+   * @param {{ role: string, content: string }[]} messages
+   * @param {object} [options]
+   * @returns {Promise<AsyncIterable<string>>}
+   */
+  async *chatStream(messages, options = {}) {
+    try {
+      const stream = await this._chatClient.chat.completions.create({
+        model: this._chatModel,
+        messages,
+        temperature: options.temperature ?? 1,
+        stream: true,
+      });
+
+      for await (const chunk of stream) {
+        const content = chunk.choices[0]?.delta?.content;
+        if (content) {
+          yield content;
+        }
+      }
+    } catch (error) {
+      console.error('AI Chat Stream Error:', error);
+      throw new Error('Failed to connect to AI Service for streaming.');
     }
   }
 }

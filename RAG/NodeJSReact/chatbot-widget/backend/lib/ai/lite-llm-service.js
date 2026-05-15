@@ -78,6 +78,33 @@ class LiteLLMService extends LLMProvider {
   }
 
   /**
+   * @param {{ role: string, content: string }[]} messages
+   * @param {object} [options]
+   * @returns {Promise<AsyncIterable<string>>}
+   */
+  async *chatStream(messages, options = {}) {
+    try {
+      const stream = await this._client.chat.completions.create({
+        model: this._chatModel,
+        messages,
+        max_tokens: options.maxTokens ?? this._maxTokens,
+        temperature: options.temperature ?? this._temperature,
+        stream: true,
+      });
+
+      for await (const chunk of stream) {
+        const content = chunk.choices[0]?.delta?.content;
+        if (content) {
+          yield content;
+        }
+      }
+    } catch (error) {
+      console.error('LiteLLM Chat Stream Error:', error.message);
+      throw new Error('Failed to connect to AI Service for streaming.');
+    }
+  }
+
+  /**
    * @param {string} prompt
    * @param {object} [options]
    * @returns {Promise<string>}

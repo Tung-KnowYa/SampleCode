@@ -1,0 +1,43 @@
+{
+  "_description": "Shared defaults for exported Word, PDF, PowerPoint, and Excel files (black + gold, professional office typography).",
+  "documentDefaults": {
+    "fontFamilyBody": "Calibri",
+    "fontFamilyHeading": "Cambria",
+    "fallbackFontFamily": "Arial",
+    "bodyFontSizePt": 11,
+    "headingFontSizePt": 16,
+    "smallFontSizePt": 9,
+    "colors": {
+      "text": "#000000",
+      "heading": "#000000",
+      "accent": "#360bb8",
+      "accentLight": "#8c53ed",
+      "tableBorder": "#360bb8",
+      "tableHeaderBackground": "#dcedfc"
+    },
+    "marginsMm": {
+      "top": 20,
+      "bottom": 20,
+      "left": 25,
+      "right": 25
+    },
+    "lineSpacing": 1.15
+  },
+  "word": {
+    "titlePage": false,
+    "headingUseSmallCaps": false
+  },
+  "pdf": {
+    "fontFamily": "Helvetica",
+    "note": "PDF uses built-in Helvetica/Times; body font above maps to Helvetica for consistency."
+  },
+  "powerpoint": {
+    "slideTitleFontSizePt": 28,
+    "slideBodyFontSizePt": 14,
+    "layout": "LAYOUT_TITLE_AND_CONTENT"
+  },
+  "excel": {
+    "defaultColumnWidth": 48,
+    "headerRowHeight": 22
+  }
+}

@@ -1,14 +1,8 @@
-const { Pool } = require('pg');
 const { DB } = require('../config/env');
+const { createDBProvider } = require('./db-factory');
 
-const pool = new Pool({
-  host: DB.host,
-  port: DB.port,
-  user: DB.user,
-  password: DB.password,
-  database: DB.database,
-});
+const dbInstance = createDBProvider(DB);
 
 module.exports = {
-  query: (text, params) => pool.query(text, params),
+  query: (text, params) => dbInstance.query(text, params),
 };

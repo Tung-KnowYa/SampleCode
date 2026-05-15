@@ -6,7 +6,7 @@ This project contains a highly scalable Node.js Backend utilizing Pgvector for R
 
 ### Prerequisites
 - Node.js (v18+)
-- PostgreSQL with `pgvector` extension installed.
+- PostgreSQL with `pgvector` extension installed (if the Mock DB Provider is not used).
 - Azure OpenAI credentials.
 
 ### Installation
