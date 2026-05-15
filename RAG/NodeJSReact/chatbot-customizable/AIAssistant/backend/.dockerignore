@@ -1,0 +1,15 @@
+node_modules
+npm-debug.log*
+.env
+.env.*
+!.env.sample
+.git
+.gitignore
+Dockerfile
+.dockerignore
+*.md
+src
+vitest.config.ts
+tsconfig.json
+tsconfig.build.json
+scripts

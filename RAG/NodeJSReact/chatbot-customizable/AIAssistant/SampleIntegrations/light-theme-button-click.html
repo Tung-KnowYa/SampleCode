@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Open embeddable assistant from host buttons using launcher=&quot;external&quot;; optional open(prompt) / initial-prompt.">
+  <title>Sample — External launcher (light theme)</title>
+  <style>
+    :root {
+      --host-bg: #f4f4f5;
+      --host-text: #18181b;
+      --host-border: #e4e4e7;
+      --host-accent: #2563eb;
+      --host-accent-hover: #1d4ed8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif;
+      background: var(--host-bg);
+      color: var(--host-text);
+      line-height: 1.55;
+    }
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      z-index: 9999;
+      padding: 0.5rem 1rem;
+      background: var(--host-accent);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 0 0 0.25rem 0;
+    }
+    .skip-link:focus { left: 0; top: 0; }
+    header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--host-border);
+      background: #fff;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+    main {
+      padding: 2rem 1.5rem 4rem;
+      max-width: 44rem;
+    }
+    main > p:first-of-type { margin-top: 0; }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 1.25rem;
+      align-items: center;
+    }
+    button.trigger {
+      cursor: pointer;
+      padding: 0.65rem 1.1rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: 0.5rem;
+      border: 1px solid var(--host-accent);
+      background: var(--host-accent);
+      color: #fff;
+    }
+    button.trigger:hover {
+      background: var(--host-accent-hover);
+      border-color: var(--host-accent-hover);
+    }
+    button.trigger:focus-visible {
+      outline: 2px solid var(--host-accent);
+      outline-offset: 2px;
+    }
+    button.secondary {
+      cursor: pointer;
+      padding: 0.65rem 1.1rem;
+      font-size: 0.95rem;
+      border-radius: 0.5rem;
+      border: 1px solid var(--host-border);
+      background: #fff;
+      color: #3f3f46;
+    }
+    button.secondary:hover {
+      background: #fafafa;
+    }
+    button.secondary:focus-visible {
+      outline: 2px solid #71717a;
+      outline-offset: 2px;
+    }
+    code {
+      font-size: 0.875em;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      background: #e4e4e7;
+      padding: 0.15rem 0.4rem;
+      border-radius: 0.25rem;
+    }
+    .fine-print {
+      margin-top: 1.75rem;
+      font-size: 0.875rem;
+      color: #52525b;
+    }
+    footer.note {
+      padding: 1rem 1.5rem;
+      font-size: 0.75rem;
+      color: #71717a;
+      border-top: 1px solid var(--host-border);
+      background: #fff;
+    }
+    footer.note code { font-size: 0.7rem; }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header>
+    <h1>External launcher</h1>
+  </header>
+  <main id="main">
+    <p>
+      The widget uses <code>launcher=&quot;external&quot;</code>, so the default floating bubble is hidden.
+      Wire your own buttons to <code>.open()</code>, <code>.close()</code>, or <code>.toggle()</code> on the custom element.
+    </p>
+    <p class="fine-print" style="margin-top: 0.75rem">
+      To post a first message automatically (no typing), call <code>.open(&apos;your question&apos;)</code>
+      or <code>.open({ prompt: &apos;…&apos; })</code>, or set <code>initial-prompt=&quot;…&quot;</code>
+      so each time the panel opens that text is sent once.
+    </p>
+    <p class="fine-print" style="margin-top: 0.75rem">
+      Example table: <code>hotel_reservations</code>, id column: <code>reservation_id</code>.
+    </p>
+    <div class="actions">
+      <button type="button" class="trigger" id="btn-open">Open AI chat</button>
+      <button type="button" class="trigger" id="btn-open-with-prompt">Open with preset question</button>
+      <button type="button" class="trigger" id="btn-demo-pinned-row">Open — pinned row (Hotel demo)</button>
+      <button type="button" class="secondary" id="btn-clear-data-pin">Clear data pin attributes</button>
+      <button type="button" class="secondary" id="btn-toggle">Toggle panel</button>
+      <button type="button" class="secondary" id="btn-close">Close</button>
+    </div>
+    <p class="fine-print">
+      Omit <code>launcher</code> to show the built-in launcher. Rebuild the bundle after frontend changes:
+      <code>npm run build</code> in <code>AIAssistant/frontend</code>.
+    </p>
+  </main>
+  <footer class="note">
+    Script: <code>../frontend/dist/chatbot-widget.bundle.js</code>
+  </footer>
+
+  <script src="../frontend/dist/chatbot-widget.bundle.js"></script>
+  <!-- Optional: initial-prompt="…" sends that text once each time the panel opens (no JS). -->
+  <ai-chatbot-widget
+    id="itk-chat"
+    theme="light"
+    launcher="external"
+    api-base="http://localhost:3002"
+  ></ai-chatbot-widget>
+
+  <script>
+    (function () {
+      var el = document.getElementById('itk-chat');
+      var openBtn = document.getElementById('btn-open');
+      var openPromptBtn = document.getElementById('btn-open-with-prompt');
+      var demoPinnedBtn = document.getElementById('btn-demo-pinned-row');
+      var clearPinBtn = document.getElementById('btn-clear-data-pin');
+      var toggleBtn = document.getElementById('btn-toggle');
+      var closeBtn = document.getElementById('btn-close');
+      if (!el || !openBtn || !openPromptBtn || !demoPinnedBtn || !clearPinBtn || !toggleBtn || !closeBtn) return;
+
+      /** Demo id — replace with a real `reservation_id` from your DB for a live answer. */
+      var DEMO_RESERVATION_ID = 'RES-10045';
+
+      openBtn.addEventListener('click', function () {
+        el.open();
+      });
+      openPromptBtn.addEventListener('click', function () {
+        el.open({
+          prompt: 'Give a short overview of what you can help with in this workspace.',
+        });
+      });
+      demoPinnedBtn.addEventListener('click', function () {
+        el.setAttribute('item-db-tbl', 'hotel_reservations');
+        el.setAttribute('item-db-col-id', 'reservation_id');
+        el.setAttribute('item-id', DEMO_RESERVATION_ID);
+        el.open({
+          prompt:
+            'Summarize this hotel reservation and suggest room upgrades / guest services.\n\nitem_id: ' +
+            DEMO_RESERVATION_ID,
+        });
+      });
+      clearPinBtn.addEventListener('click', function () {
+        el.removeAttribute('item-id');
+        el.removeAttribute('item-db-tbl');
+        el.removeAttribute('item-db-col-id');
+      });
+      toggleBtn.addEventListener('click', function () {
+        el.toggle();
+      });
+      closeBtn.addEventListener('click', function () {
+        el.close();
+      });
+    })();
+  </script>
+</body>
+</html>

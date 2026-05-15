@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "item_id": "HOTEL-101",
+      "item_name": "Main Hall podium AV rack",
+      "severity": "high",
+      "status": "investigating",
+      "score": 88,
+      "note": "Intermittent HDMI drop during AM keynotes since Mon. Matrix port 7 flaps; warmup resync restores for ~20 minutes. Replacement cable ordered EX-8844."
+    },
+    {
+      "item_id": "HOTEL-220",
+      "item_name": "West breakout Wi-Fi contention",
+      "severity": "medium",
+      "status": "scheduled",
+      "score": 42,
+      "note": "AP channel overlap with neighboring suite 12; channel plan tweak scheduled Thurs 03:00. Workaround: connect video bridge on wired dongle VLAN 208."
+    },
+    {
+      "item_id": "HOTEL-008",
+      "item_name": "Loading dock egress sensor",
+      "severity": "low",
+      "status": "monitoring",
+      "score": 15,
+      "note": "False positive traffic hold last week; calibrated Wed. No alarms in 96h; keep vibration pad installed until month-end review."
+    }
+  ]
+}

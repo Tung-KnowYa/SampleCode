@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Two widgets on one page: full ai-chatbot-widget plus knowledge-chatbot-widget (embeddable assistant sample).">
+  <title>Sample — Two widgets on one page</title>
+  <style>
+    :root {
+      --host-bg: #0c0a09;
+      --host-text: #fafaf9;
+      --host-muted: #a8a29e;
+      --host-card: #1c1917;
+      --host-border: #1e293b;
+      --host-emerald: #10b981;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif;
+      background: var(--host-bg);
+      color: var(--host-text);
+      line-height: 1.55;
+    }
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      z-index: 9999;
+      padding: 0.5rem 1rem;
+      background: var(--host-emerald);
+      color: #0c0a09;
+      font-weight: 700;
+      text-decoration: none;
+      border-radius: 0 0 0.25rem 0;
+    }
+    .skip-link:focus { left: 0; top: 0; }
+    header {
+      padding: 1rem 1.25rem;
+      background: var(--host-card);
+      border-bottom: 3px solid var(--host-emerald);
+    }
+    header h1 { margin: 0; font-size: 1.125rem; font-weight: 700; }
+    header p { margin: 0.5rem 0 0; font-size: 0.8125rem; color: var(--host-muted); max-width: 52rem; }
+    main {
+      padding: 1.25rem 1.25rem 5rem;
+      max-width: 48rem;
+    }
+    .card {
+      background: var(--host-card);
+      border: 1px solid var(--host-border);
+      border-radius: 0.5rem;
+      padding: 1rem 1.15rem;
+      margin-bottom: 1rem;
+    }
+    .card h2 {
+      margin: 0 0 0.5rem;
+      font-size: 0.9375rem;
+      font-weight: 700;
+      color: var(--host-emerald);
+    }
+    .card p { margin: 0; font-size: 0.8125rem; color: #d6d3d1; }
+    .card code {
+      font-size: 0.75rem;
+      background: #1e293b;
+      padding: 0.12rem 0.35rem;
+      border-radius: 0.2rem;
+      color: #34d399;
+    }
+    ul { margin: 0.5rem 0 0; padding-left: 1.15rem; font-size: 0.8125rem; color: #d6d3d1; }
+    li { margin-bottom: 0.35rem; }
+    footer.note {
+      padding: 1rem 1.25rem;
+      font-size: 0.75rem;
+      color: var(--host-muted);
+      border-top: 1px solid var(--host-border);
+      background: var(--host-card);
+    }
+    footer.note code { font-size: 0.68rem; color: #34d399; background: #1e293b; padding: 0.12rem 0.3rem; border-radius: 0.2rem; }
+    .actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.65rem; }
+    .actions button {
+      cursor: pointer;
+      font: inherit;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      padding: 0.45rem 0.85rem;
+      border-radius: 0.35rem;
+      border: 1px solid var(--host-border);
+      background: #1e293b;
+      color: var(--host-text);
+    }
+    .actions button:hover { border-color: var(--host-emerald); color: var(--host-emerald); }
+    .actions button:focus-visible { outline: 2px solid var(--host-emerald); outline-offset: 2px; }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header>
+    <h1>Two assistants on one host page</h1>
+    <p>
+      You get <strong>two separate launchers</strong> — one per custom element. Point
+      <code>api-base</code> at your API origin if the backend is not same-origin.
+    </p>
+  </header>
+  <main id="main">
+    <div class="card">
+      <h2>&lt;ai-chatbot-widget theme=&quot;light&quot;&gt;</h2>
+      <p>Full assistant: knowledge + data tabs, tools, reports.</p>
+      <ul>
+        <li>
+          <strong>Instant first message:</strong> set <code>initial-prompt=&quot;…&quot;</code> to send that text once when the panel opens, or call
+          <code>element.open('…')</code> / <code>element.open({ prompt: '…' })</code> (takes priority for that open).
+        </li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>&lt;knowledge-chatbot-widget&gt;</h2>
+      <p>
+        Knowledge-only flow (<code>source: 'knowledge'</code>). This sample sets
+        <code>api-base=&quot;http://localhost:3002&quot;</code> so the widget calls that origin’s
+        <code>/api/chat</code> while you open the file from disk or another port.
+      </p>
+      <ul>
+        <li>Adjust <code>api-base</code> or defaults in <code>frontend/src/components/chat-widget/defaultApiBases.js</code>.</li>
+        <li>Ensure CORS on the API allows your host origin when they differ.</li>
+        <li>Same <code>initial-prompt</code> and <code>open(prompt)</code> behavior as the full widget.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>Preset question (no typing)</h2>
+      <p>
+        Uses the elements below with <code>id</code>s. One call opens the drawer and posts the message.
+        The knowledge-only button uses the object form only to show both APIs.
+      </p>
+      <div class="actions">
+        <button type="button" id="btn-open-full-preset">Full assistant — preset question</button>
+        <button type="button" id="btn-open-knowledge-preset">Knowledge assistant — preset question</button>
+      </div>
+    </div>
+  </main>
+  <footer class="note">
+    Bundle: <code>../frontend/dist/chatbot-widget.bundle.js</code>
+  </footer>
+
+  <script src="../frontend/dist/chatbot-widget.bundle.js"></script>
+  <!-- Optional: initial-prompt sends once each time the panel opens (string form). -->
+  <ai-chatbot-widget
+    id="demo-full-assistant"
+    theme="light"
+    api-base="http://localhost:3002"
+  ></ai-chatbot-widget>
+  <knowledge-chatbot-widget
+    id="demo-knowledge-assistant"
+    api-base="http://localhost:3002"
+  ></knowledge-chatbot-widget>
+  <script>
+    document.getElementById('btn-open-full-preset').addEventListener('click', function () {
+      document.getElementById('demo-full-assistant').open(
+        'Give a brief overview of what you can help with.'
+      );
+    });
+    document.getElementById('btn-open-knowledge-preset').addEventListener('click', function () {
+      document.getElementById('demo-knowledge-assistant').open({
+        prompt: 'What kinds of answers can you give from the knowledge base?',
+      });
+    });
+  </script>
+</body>
+</html>

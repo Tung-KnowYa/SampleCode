@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+/* Scoped typography for markdown — tables styled in MessageMarkdownContent (variant-aware) */
+.prose h1, .prose h2, .prose h3 { @apply font-bold mt-4 mb-2; }
+.prose ul { @apply list-disc list-inside my-2; }
+
+/*
+ * User bubbles may be dark gradient OR light card (light / light-gold themes).
+ * Force prose wrapper + bodies to inherit the bubble text color so Typography plugin defaults can't wash text out.
+ */
+.markdown-user-bubble.prose {
+  color: inherit !important;
+}
+
+.markdown-user-bubble.prose :where(p, li, ul, ol, blockquote, h1, h2, h3, h4, td, th, strong, em) {
+  color: inherit !important;
+}
+
+.markdown-user-bubble.prose :where(code):not(pre code) {
+  color: inherit !important;
+  background-color: color-mix(in srgb, currentColor 14%, transparent);
+  padding: 0.1em 0.35em;
+  border-radius: 0.25rem;
+  font-size: 0.9em;
+}
+
+.markdown-user-bubble.prose pre {
+  color: inherit !important;
+  background-color: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.markdown-user-bubble.prose :where(a:not([data-source-chip])) {
+  color: color-mix(in srgb, currentColor 45%, #38bdf8) !important;
+  font-weight: 600;
+  text-underline-offset: 2px;
+}

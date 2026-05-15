@@ -1,0 +1,38 @@
+{
+  "panelWidth": "min(960px, 96vw)",
+  "panelMinWidth": "560px",
+  "panelMaxWidth": "100%",
+  "assistantBrandTitle": "AI Assistant",
+  "modelLabel": "",
+  "newChatHeading": "New Chat",
+  "emptyStateMessage": "No messages yet. Say hello to start.",
+  "composerDisclaimer": "AI can make mistakes. Check important info.",
+  "composerPlaceholder": "How can I help you today?",
+  "searchPlaceholder": "Search...",
+  "startNewChatLabel": "Start New Chat",
+  "title": "Your AI Assistant",
+  "suggestedPromptsLabel": "Suggested prompts",
+  "sourceTabs": {
+    "data": {
+      "label": "Hotel Data",
+      "welcomeMessage": "Hello! I am your Hotel AI Assistant. I can help you analyze room bookings, guest requests, and operational data. Type your own prompt or select one of the suggested prompts to get started.",
+      "suggestedPrompts": [
+        "How many room reservations are there for today?",
+        "Summarize the guest feedback and ratings from the last 7 days."
+      ]
+    },
+    "knowledge": {
+      "label": "Hotel Knowledge",
+      "welcomeMessage": "I can help with hotel policies, amenities, and standard operating procedures. Type your own prompt or select one of the suggested prompts to get started.",
+      "suggestedPrompts": [
+        "Tell me about the knowledge base.",
+        "Tell me about the hotel's amenities and wellness facilities."
+      ]
+    }
+  },
+  "defaultSourceMode": "data",
+  "textareaPlaceholder": "Type your message here.",
+  "textareaPlaceholderWithTool": "Ask a question (formatting as {tool})...",
+  "closeAriaLabel": "Close panel",
+  "backdropAriaLabel": "Close chat"
+}

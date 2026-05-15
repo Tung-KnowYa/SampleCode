@@ -1,0 +1,14 @@
+[
+  {
+    "document_name": "demo/policies/hotel-access.md",
+    "content": "## Hotel access policy\nAfter hours, guests must badge in at the Main Lobby. Elevator lobby doors auto-lock at 23:00. Room key required for gym and pool areas.\n\n## Emergency exits\nClearly marked stairwell exits on all floors may be used anytime; alarms sound locally."
+  },
+  {
+    "document_name": "demo/runbooks/av-hdmi-loss.md",
+    "content": "# AV — HDMI handshake loss\nSymptoms: black screen despite source power. Steps:\n1. Reseat HDMI at display and podium matrix (cold pull, wait 3s).\n2. Force source resolution to 1080p if auto-negotiation loops.\n3. If persists, failover to VGA/DP backup input and note matrix port in incident."
+  },
+  {
+    "document_name": "https://kb.example.local/catering/power.md",
+    "content": "## Catering loads\nTemporary circuits for warmers draw up to 3kW; must not plug into housekeeping quad boxes. Dedicated drop from panel **H2** only; Facilities must energize breaker **H2-B** before load-in."
+  }
+]

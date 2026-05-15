@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Sample host page: ai-chatbot-widget with light theme (embeddable assistant).">
+  <title>Sample — Light theme widget</title>
+  <style>
+    :root {
+      --host-bg: #f1f5f9;
+      --host-text: #0f172a;
+      --host-accent: #b8860b;
+      --host-card: #ffffff;
+      --host-border: #e2e8f0;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif;
+      background: var(--host-bg);
+      color: var(--host-text);
+      line-height: 1.5;
+    }
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      z-index: 9999;
+      padding: 0.5rem 1rem;
+      background: var(--host-accent);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 0 0 0.25rem 0;
+    }
+    .skip-link:focus { left: 0; top: 0; }
+    header {
+      padding: 1rem 1.25rem;
+      background: var(--host-card);
+      border-bottom: 3px solid var(--host-accent);
+      box-shadow: 0 1px 0 var(--host-border);
+    }
+    header h1 { margin: 0; font-size: 1.125rem; font-weight: 700; }
+    header p { margin: 0.35rem 0 0; font-size: 0.8125rem; opacity: 0.85; }
+    main {
+      padding: 1.5rem 1.25rem 4rem;
+      max-width: 42rem;
+    }
+    .card {
+      background: var(--host-card);
+      border: 1px solid var(--host-border);
+      border-radius: 0.5rem;
+      padding: 1rem 1.25rem;
+    }
+    footer.note {
+      padding: 1rem 1.25rem;
+      font-size: 0.75rem;
+      color: #64748b;
+      border-top: 1px solid var(--host-border);
+      background: var(--host-card);
+    }
+    footer.note code { font-size: 0.7rem; background: #e2e8f0; padding: 0.15rem 0.35rem; border-radius: 0.2rem; }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header>
+    <h1>Executive overview</h1>
+    <p>Host page uses light chrome; widget uses <strong>theme=&quot;light&quot;</strong> (Shadow DOM keeps UI isolated).</p>
+  </header>
+  <main id="main">
+    <div class="card">
+      <p style="margin: 0">Placeholder dashboard content. Open the assistant from the launcher.</p>
+    </div>
+  </main>
+  <footer class="note">
+    Bundle path (run <code>npm run build</code> in <code>frontend/</code>): <code>../frontend/dist/chatbot-widget.bundle.js</code>
+  </footer>
+
+  <script src="../frontend/dist/chatbot-widget.bundle.js"></script>
+  <ai-chatbot-widget theme="light" api-base="http://localhost:3002"></ai-chatbot-widget>
+</body>
+</html>

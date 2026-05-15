@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Operational Insights — AI Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #020617;
+      --surface: #0f172a;
+      --surface-elevated: #1e293b;
+      --border: #1e293b;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --emerald: #10b981;
+      --emerald-glow: rgba(16, 185, 129, 0.15);
+      --emerald-dim: rgba(16, 185, 129, 0.35);
+    }
+    
+    * { box-sizing: border-box; }
+    
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(circle at 80% 0%, rgba(16, 185, 129, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 20% 100%, rgba(59, 130, 246, 0.05) 0%, transparent 40%);
+      background-attachment: fixed;
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 4rem 1.5rem;
+    }
+
+    header {
+      margin-bottom: 3.5rem;
+      animation: fadeInDown 0.6s ease-out;
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .badge-top {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      background: var(--emerald-glow);
+      color: var(--emerald);
+      border-radius: 2rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 1rem;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    h1 {
+      font-size: 2.75rem;
+      font-weight: 800;
+      margin: 0 0 0.75rem;
+      letter-spacing: -0.04em;
+      background: linear-gradient(to bottom right, #fff 30%, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .sub {
+      font-size: 1.125rem;
+      color: var(--text-muted);
+      max-width: 640px;
+      margin: 0;
+    }
+
+    .panel {
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 1.25rem;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9375rem;
+    }
+
+    th {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      background: rgba(30, 41, 59, 0.4);
+    }
+
+    td {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    
+    tr { transition: background 0.2s, transform 0.2s; }
+    tr:hover { background: rgba(255, 255, 255, 0.02); }
+
+    .id-cell {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.625rem;
+      border-radius: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      background: var(--surface-elevated);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+
+    .sev-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+    
+    .sev-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .sev-high { color: #f87171; }
+    .sev-high .sev-dot { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
+    
+    .sev-medium { color: #60a5fa; }
+    .sev-medium .sev-dot { background: #3b82f6; box-shadow: 0 0 8px #3b82f6; }
+    
+    .sev-low { color: #34d399; }
+    .sev-low .sev-dot { background: #10b981; box-shadow: 0 0 8px #10b981; }
+
+    .ai-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.75rem;
+      height: 2.75rem;
+      border: 1px solid var(--border);
+      border-radius: 0.875rem;
+      background: linear-gradient(145deg, #1e293b, #0f172a);
+      color: var(--emerald);
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+    }
+
+    .ai-btn:hover {
+      border-color: var(--emerald);
+      box-shadow: 0 0 25px var(--emerald-glow);
+      transform: scale(1.1) rotate(5deg);
+      color: #fff;
+      background: var(--emerald);
+    }
+
+    .ai-btn svg {
+      width: 1.25rem;
+      height: 1.25rem;
+      transition: transform 0.4s;
+    }
+    
+    .ai-btn:hover svg {
+      transform: scale(1.2);
+    }
+
+    footer.hint {
+      margin-top: 3.5rem;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      text-align: center;
+      padding: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    footer.hint code {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--emerald);
+      background: rgba(16, 185, 129, 0.1);
+      padding: 0.15rem 0.4rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+    }
+
+    /* Custom scrollbar for better look */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <span class="badge-top">Live Operations</span>
+      <h1>System Insights</h1>
+      <p class="sub">
+        Real-time operational monitoring. Use the <strong>AI Spark</strong> to analyze specific items and get instant recommendations.
+      </p>
+    </header>
+
+    <div class="panel">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 15%">ID</th>
+            <th>Item Description</th>
+            <th style="width: 20%">Severity</th>
+            <th style="width: 20%">Current Status</th>
+            <th style="width: 10%; text-align: center;">Analyze</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+
+    <footer class="hint">
+      Operational nodes are syncing via <code>http://localhost:3002</code>. 
+      <br>Environment: <code id="env-tag">production-stable</code>
+    </footer>
+  </div>
+
+  <!-- Chatbot Widget Integration -->
+  <script src="./embedded/chatbot-widget.bundle.js"></script>
+  <ai-chatbot-widget
+    id="dash-chat"
+    theme="dark-emerald"
+    launcher="external"
+    history-sidebar="false"
+    api-base="http://localhost:3002"
+  ></ai-chatbot-widget>
+
+  <script>
+    (function () {
+      var API_BASE = document.body.getAttribute('data-api-base');
+      var chat = document.getElementById('dash-chat');
+      if (API_BASE != null && API_BASE !== '') {
+        chat.setAttribute('api-base', API_BASE.trim());
+      }
+
+      var items = [
+        {
+          item_id: 'HOTEL-101',
+          item_name: 'Main Hall podium AV rack',
+          severity: 'high',
+          status: 'investigating',
+        },
+        {
+          item_id: 'HOTEL-220',
+          item_name: 'West breakout Wi-Fi contention',
+          severity: 'medium',
+          status: 'scheduled',
+        },
+        {
+          item_id: 'HOTEL-008',
+          item_name: 'Loading dock egress sensor',
+          severity: 'low',
+          status: 'monitoring',
+        },
+        {
+          item_id: 'HOTEL-405',
+          item_name: 'Rooftop HVAC vibration alert',
+          severity: 'high',
+          status: 'dispatched',
+        }
+      ];
+
+      var prompt =
+        'Summarize this operational item: give severity, status, key facts from context, and concise next steps or checks.';
+
+      function sevClass(sev) {
+        var s = (sev || '').toLowerCase();
+        if (s === 'high' || s === 'critical') return 'sev-high';
+        if (s === 'medium') return 'sev-medium';
+        if (s === 'low') return 'sev-low';
+        return '';
+      }
+
+      // Modern Sparkle AI Icon
+      var sparkleIcon = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m12 3 1.912 4.913L19 10l-5.088 2.087L12 17l-1.912-4.913L5 10l5.088-2.087Z"/>
+          <path d="m5 3 1 1"/><path d="m19 17 1 1"/><path d="m19 3 1 1"/><path d="m5 17 1 1"/>
+        </svg>
+      `;
+
+      var tbody = document.getElementById('rows');
+      items.forEach(function (row) {
+        var tr = document.createElement('tr');
+        var sClass = sevClass(row.severity);
+        
+        tr.innerHTML = `
+          <td class="id-cell">${row.item_id}</td>
+          <td style="font-weight: 500;">${row.item_name}</td>
+          <td>
+            <div class="sev-pill ${sClass}">
+              <span class="sev-dot"></span>
+              ${row.severity.toUpperCase()}
+            </div>
+          </td>
+          <td>
+            <span class="status-badge">${row.status}</span>
+          </td>
+          <td style="text-align: center;">
+            <button type="button" class="ai-btn" title="AI Analysis" data-item-id="${row.item_id}">
+              ${sparkleIcon}
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      tbody.addEventListener('click', function (e) {
+        var btn = e.target.closest('.ai-btn');
+        if (!btn || !tbody.contains(btn)) return;
+        
+        var id = btn.getAttribute('data-item-id');
+        if (!id) return;
+
+        // Feedback on click
+        btn.style.transform = 'scale(0.9)';
+        setTimeout(() => btn.style.transform = '', 100);
+
+        chat.setAttribute('item-id', id);
+        requestAnimationFrame(function () {
+          chat.open({ prompt: prompt });
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
+

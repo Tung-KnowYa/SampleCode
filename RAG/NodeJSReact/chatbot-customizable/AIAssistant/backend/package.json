@@ -1,0 +1,19 @@
+{
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "verify:chat-history": "node scripts/verify-chat-history.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "docx": "^9.1.0",
+    "dotenv": "^17.4.2",
+    "exceljs": "^4.4.0",
+    "express": "^5.2.1",
+    "openai": "^6.34.0",
+    "pdfkit": "^0.16.0",
+    "pptxgenjs": "^3.12.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
+  }
+}
