@@ -1,4 +1,4 @@
-# Embeddable AI Chatbot Widget - How To
+# How To
 
 This project includes a Node.js backend that performs Retrieval-Augmented Generation (RAG) from **bundled JSON** files (`backend/data/demo-knowledge-base.json` and `demo-datasets.json`)—no database required—along with a React frontend encapsulated as a Web Component for seamless embedding into third-party websites without CSS conflicts.
 
