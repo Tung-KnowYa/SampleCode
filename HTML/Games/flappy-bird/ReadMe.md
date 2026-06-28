@@ -1,4 +1,5 @@
 <div align="center">
-  <br />
-  <img src="/HTML/Games/flappy-bird/screenshots/tung-knowya-flappy-bird-sample.jpg" />
+  Live Demo: https://knowya.shop5s.com/samples/game-flappy-bird.html
+  <br /><br />
+  <img src="screenshots/tung-knowya-flappy-bird-sample.jpg" />
 </div>
